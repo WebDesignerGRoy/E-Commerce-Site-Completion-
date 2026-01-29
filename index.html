@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxury Prayer Cards - Premium Memorial Cards</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lora:wght@400;700&family=Crimson+Text:wght@400;600&family=EB+Garamond:wght@400;700&display=swap');
+        
+        .font-playfair { font-family: 'Playfair Display', serif; }
+        .font-lora { font-family: 'Lora', serif; }
+        .font-crimson { font-family: 'Crimson Text', serif; }
+        .font-garamond { font-family: 'EB Garamond', serif; }
+        
+        .metal-gold { background: linear-gradient(135deg, #d4af37, #f4e4bc, #d4af37); }
+        .metal-silver { background: linear-gradient(135deg, #c0c0c0, #e8e8e8, #c0c0c0); }
+        .metal-rose { background: linear-gradient(135deg, #b76e79, #e8b4c3, #b76e79); }
+        .metal-bronze { background: linear-gradient(135deg, #cd7f32, #e5a857, #cd7f32); }
+        
+        .brushed-metal { 
+            background: linear-gradient(180deg, #e0e0e0 0%, #b0b0b0 50%, #e0e0e0 100%);
+            background-size: 100% 4px;
+        }
+        
+        .marble-bg {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 25%, #f5f5f5 50%, #d0d0d0 75%, #f5f5f5 100%);
+            opacity: 0.8;
+        }
+        
+        .card-preview {
+            width: 300px;
+            height: 500px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+        
+        .card-preview:hover {
+            transform: translateY(-5px);
+        }
+        
+        .border-style-1 { 
+            border: 8px solid transparent;
+            border-image: linear-gradient(45deg, #d4af37, #f4e4bc, #d4af37) 1;
+        }
+        
+        .border-style-2 {
+            border: 6px double #d4af37;
+            box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+        
+        .border-style-3 {
+            border: 10px solid;
+            border-image: repeating-linear-gradient(45deg, #d4af37, #d4af37 10px, #f4e4bc 10px, #f4e4bc 20px) 10;
+        }
+        
+        .border-style-4 {
+            border: 5px solid #d4af37;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+        
+        .photo-upload-area {
+            border: 2px dashed #cbd5e1;
+            transition: all 0.3s;
+        }
+        
+        .photo-upload-area:hover {
+            border-color: #64748b;
+            background-color: #f8fafc;
+        }
+        
+        .sticker {
+            cursor: move;
+            user-select: none;
+            transition: transform 0.2s;
+        }
+        
+        .sticker:hover {
+            transform: scale(1.1);
+        }
+        
+        .draggable {
+            position: absolute;
+            cursor: move;
+            z-index: 10;
+        }
+        
+        .resize-handle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #3b82f6;
+            border: 1px solid white;
+            border-radius: 50%;
+            cursor: nwse-resize;
+            bottom: -5px;
+            right: -5px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-cross text-3xl text-purple-600 mr-3"></i>
+                    <span class="font-playfair text-2xl font-bold text-gray-800">Luxury Prayer Cards</span>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <button onclick="showView('home')" class="text-gray-700 hover:text-purple-600 transition">Home</button>
+                    <button onclick="showView('designer')" class="text-gray-700 hover:text-purple-600 transition">Design Card</button>
+                    <button onclick="showView('gallery')" class="text-gray-700 hover:text-purple-600 transition">Gallery</button>
+                    <button onclick="showView('funeral-home')" class="text-gray-700 hover:text-purple-600 transition">Funeral Home Portal</button>
+                    <button onclick="showCart()" class="relative">
+                        <i class="fas fa-shopping-cart text-gray-700 hover:text-purple-600 text-xl"></i>
+                        <span id="cart-count" class="absolute -top-2 -right-2 bg-purple-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Home View -->
+    <div id="home-view" class="view">
+        <!-- Hero Section -->
+        <section class="relative bg-gradient-to-r from-purple-900 to-indigo-900 text-white py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div class="animate-fade-in">
+                        <h1 class="font-playfair text-5xl font-bold mb-6">Beautiful Memorial Prayer Cards</h1>
+                        <p class="text-xl mb-8 text-purple-100">Create elegant, personalized memorial cards with our premium designer. Choose from paper or metal cards, customize with photos, prayers, and beautiful borders.</p>
+                        <div class="flex flex-wrap gap-4">
+                            <button onclick="showView('designer')" class="bg-white text-purple-900 px-8 py-3 rounded-lg font-semibold hover:bg-purple-100 transition">
+                                <i class="fas fa-magic mr-2"></i>Start Designing
+                            </button>
+                            <button onclick="showView('gallery')" class="border-2 border-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-purple-900 transition">
+                                View Gallery
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="card-preview bg-white rounded-lg p-4 transform rotate-3 hover:rotate-0 transition">
+                            <img src="https://picsum.photos/seed/card1/150/250" alt="Paper Card" class="w-full h-48 object-cover rounded">
+                            <p class="text-center mt-2 text-gray-800 font-semibold">Paper Cards</p>
+                        </div>
+                        <div class="card-preview bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-lg p-4 transform -rotate-3 hover:rotate-0 transition">
+                            <div class="bg-white/90 rounded p-2 h-48 flex items-center justify-center">
+                                <i class="fas fa-cross text-6xl text-yellow-600"></i>
+                            </div>
+                            <p class="text-center mt-2 text-white font-semibold">Metal Cards</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="py-16 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="font-playfair text-4xl text-center mb-12">Why Choose Luxury Prayer Cards?</h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <div class="bg-purple-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-palette text-3xl text-purple-600"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Custom Design</h3>
+                        <p class="text-gray-600">Personalize every aspect with our intuitive designer - photos, prayers, borders, and more.</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="bg-purple-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-gem text-3xl text-purple-600"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Premium Materials</h3>
+                        <p class="text-gray-600">Choose from high-quality paper or elegant metal cards with various finishes.</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="bg-purple-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-truck text-3xl text-purple-600"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Fast Delivery</h3>
+                        <p class="text-gray-600">Quick production and shipping to ensure your cards arrive when needed.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section class="py-16 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="font-playfair text-4xl text-center mb-12">Pricing Options</h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="bg-white rounded-lg shadow-lg p-8 hover:shadow-xl transition">
+                        <h3 class="text-2xl font-bold mb-4">Standard Paper</h3>
+                        <p class="text-4xl font-bold text-purple-600 mb-6">$2.99<span class="text-lg text-gray-500">/card</span></p>
+                        <ul class="space-y-3 mb-8">
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Premium cardstock</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Full color printing</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Glossy finish</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Standard size (2.5" x 4.5")</li>
+                        </ul>
+                        <button onclick="selectCardType('paper', 'standard')" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition">
+                            Select This Option
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-lg p-8 hover:shadow-xl transition border-2 border-purple-600 relative">
+                        <span class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-purple-600 text-white px-4 py-1 rounded-full text-sm">Most Popular</span>
+                        <h3 class="text-2xl font-bold mb-4">Premium Paper</h3>
+                        <p class="text-4xl font-bold text-purple-600 mb-6">$4.99<span class="text-lg text-gray-500">/card</span></p>
+                        <ul class="space-y-3 mb-8">
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Thick premium cardstock</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Enhanced color printing</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Metallic accents</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Larger size (3" x 5")</li>
+                        </ul>
+                        <button onclick="selectCardType('paper', 'premium')" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition">
+                            Select This Option
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-lg p-8 hover:shadow-xl transition">
+                        <h3 class="text-2xl font-bold mb-4">Metal Cards</h3>
+                        <p class="text-4xl font-bold text-purple-600 mb-6">$9.99<span class="text-lg text-gray-500">/card</span></p>
+                        <ul class="space-y-3 mb-8">
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Durable metal construction</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Engraved design</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Multiple metal finishes</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>Lifetime durability</li>
+                        </ul>
+                        <button onclick="selectCardType('metal', 'standard')" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition">
+                            Select This Option
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Card Designer View -->
+    <div id="designer-view" class="view hidden">
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <h1 class="font-playfair text-4xl mb-8 text-center">Design Your Memorial Card</h1>
+            
+            <div class="grid lg:grid-cols-2 gap-8">
+                <!-- Design Controls -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <!-- Step 1: Card Type -->
+                    <div class="mb-6">
+                        <h3 class="text-xl font-semibold mb-4">1. Choose Card Type</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button onclick="setCardType('paper')" id="paper-btn" class="border-2 border-purple-600 bg-purple-50 p-4 rounded-lg hover:bg-purple-100 transition">
+                                <i class="fas fa-file-alt text-2xl text-purple-600 mb-2"></i>
+                                <p class="font-semibold">Paper Card</p>
+                            </button>
+                            <button onclick="setCardType('metal')" id="metal-btn" class="border-2 border-gray-300 p-4 rounded-lg hover:bg-gray-50 transition">
+                                <i class="fas fa-gem text-2xl text-gray-600 mb-2"></i>
+                                <p class="font-semibold">Metal Card</p>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Background -->
+                    <div class="mb-6">
+                        <h3 class="text-xl font-semibold mb-4">2. Background Style</h3>
+                        <div class="grid grid-cols-3 gap-3">
+                            <button onclick="setBackground('white')" class="h-20 bg-white border-2 border-gray-300 rounded hover:border-purple-600 transition"></button>
+                            <button onclick="setBackground('brushed')" class="h-20 brushed-metal border-2 border-gray-300 rounded hover:border-purple-600 transition"></button>
+                            <button onclick="setBackground('marble')" class="h-20 marble-bg border-2 border-gray-300 rounded hover:border-purple-600 transition"></button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Border -->
+                    <div class="mb-6">
+                        <h3 class="text-xl font-semibold mb-4">3. Border Style & Color</h3>
+                        <div class="grid grid-cols-4 gap-3 mb-4">
+                            <button onclick="setBorderStyle(1)" class="h-16 border-style-1 bg-white rounded"></button>
+                            <button onclick="setBorderStyle(2)" class="h-16 border-style-2 bg-white rounded"></button>
+                            <button onclick="setBorderStyle(3)" class="h-16 border-style-3 bg-white rounded"></button>
+                            <button onclick="setBorderStyle(4)" class="h-16 border-style-4 bg-white rounded"></button>
+                        </div>
+                        <div class="grid grid-cols-4 gap-3">
+                            <button onclick="setBorderMetal('gold')" class="h-12 metal-gold rounded"></button>
+                            <button onclick="setBorderMetal('silver')" class="h-12 metal-silver rounded"></button>
+                            <button onclick="setBorderMetal('rose')" class="h-12 metal-rose rounded"></button>
+                            <button onclick="setBorderMetal('bronze')" class="h-12 metal-bronze rounded"></button>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Photo Upload -->
+                    <div class="mb-6">
+                        <h3 class="text-xl font-semibold mb-4">4. Add Photo</h3>
+                        <div class="photo-upload-area p-8 rounded-lg text-center cursor-pointer" onclick="document.getElementById('photo-upload').click()">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
+                            <p class="text-gray-600">Click to upload photo</p>
+                            <input type="file" id="photo-upload" class="hidden" accept="image/*" onchange="handlePhotoUpload(event)">
+                        </div>
+                    </div>
+
+                    <!-- Step 5: Text & Prayer -->
+                    <div class="mb-6">
+                        <h3 class="text-xl font-semibold mb-4">5. Text & Prayer</h3>
+                        <input type="text" id="name-input" placeholder="Name" class="w-full p-3 border rounded-lg mb-3" onchange="updateCardText()">
+                        <input type="text" id="dates-input" placeholder="Dates (e.g., 1950 - 2024)" class="w-full p-3 border rounded-lg mb-3" onchange="updateCardText()">
+                        <select id="prayer-select" class="w-full p-3 border rounded-lg mb-3" onchange="updatePrayer()">
+                            <option value="">Select a prayer...</option>
+                            <option value="prayer1">The Lord's Prayer</option>
+                            <option value="prayer2">Memorial Prayer</option>
+                            <option value="prayer3">Eternal Rest</option>
+                            <option value="prayer4">Custom Prayer</option>
+                        </select>
+                        <textarea id="custom-prayer" placeholder="Enter custom prayer text..." class="w-full p-3 border rounded-lg h-24 hidden" onchange="updateCardText()"></textarea>
+                    </div>
+
+                    <!-- Step 6: Font Selection -->
+                    <div class="mb-6">
+                        <h3 class="text-xl font-semibold mb-4">6. Font Style</h3>
+                        <select id="font-select" class="w-full p-3 border rounded-lg" onchange="updateFont()">
+                            <option value="font-playfair">Playfair Display</option>
+                            <option value="font-lora">Lora</option>
+                            <option value="font-crimson">Crimson Text</option>
+                            <option value="font-garamond">EB Garamond</option>
+                        </select>
+                    </div>
+
+                    <!-- Step 7: Decorative Elements -->
+                    <div class="mb-6">
+                        <h3 class="text-xl font-semibold mb-4">7. Decorative Elements</h3>
+                        <div class="grid grid-cols-6 gap-2">
+                            <button onclick="addSticker('cross')" class="p-3 border rounded hover:bg-gray-100">
+                                <i class="fas fa-cross text-xl"></i>
+                            </button>
+                            <button onclick="addSticker('dove')" class="p-3 border rounded hover:bg-gray-100">
+                                <i class="fas fa-dove text-xl"></i>
+                            </button>
+                            <button onclick="addSticker('heart')" class="p-3 border rounded hover:bg-gray-100">
+                                <i class="fas fa-heart text-xl"></i>
+                            </button>
+                            <button onclick="addSticker('star')" class="p-3 border rounded hover:bg-gray-100">
+                                <i class="fas fa-star text-xl"></i>
+                            </button>
+                            <button onclick="addSticker('flower')" class="p-3 border rounded hover:bg-gray-100">
+                                <i class="fas fa-spa text-xl"></i>
+                            </button>
+                            <button onclick="addSticker('angel')" class="p-3 border rounded hover:bg-gray-100">
+                                <i class="fas fa-angel text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 8: QR Code -->
+                    <div class="mb-6">
+                        <h3 class="text-xl font-semibold mb-4">8. Add QR Code</h3>
+                        <input type="text" id="qr-input" placeholder="Enter URL or text for QR code" class="w-full p-3 border rounded-lg mb-3">
+                        <button onclick="generateQRCode()" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition">
+                            Generate QR Code
+                        </button>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex gap-4">
+                        <button onclick="saveDesign()" class="flex-1 bg-gray-600 text-white py-3 rounded-lg hover:bg-gray-700 transition">
+                            <i class="fas fa-save mr-2"></i>Save Design
+                        </button>
+                        <button onclick="addToCart()" class="flex-1 bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition">
+                            <i class="fas fa-shopping-cart mr-2"></i>Add to Cart
+                        </button>
+                        <button onclick="exportPDF()" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition">
+                            <i class="fas fa-file-pdf mr-2"></i>Export PDF
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Live Preview -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-semibold mb-4">Live Preview</h3>
+                    <div class="flex justify-center">
+                        <div id="card-preview" class="card-preview bg-white rounded-lg p-6 relative overflow-hidden">
+                            <div id="card-content" class="h-full flex flex-col items-center justify-center text-center relative">
+                                <div id="photo-container" class="mb-4 relative">
+                                    <img id="preview-photo" src="" alt="" class="max-w-full h-40 object-cover rounded hidden">
+                                </div>
+                                <h2 id="preview-name" class="text-2xl font-bold mb-2 font-playfair">Your Name Here</h2>
+                                <p id="preview-dates" class="text-lg mb-4">1950 - 2024</p>
+                                <div id="preview-prayer" class="text-sm mb-4 font-lora max-w-full">
+                                    <p>May you rest in eternal peace.</p>
+                                </div>
+                                <div id="qr-container" class="mt-4"></div>
+                                <div id="stickers-container" class="absolute inset-0 pointer-events-none"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <p class="text-sm text-gray-600">Front View</p>
+                        <button onclick="toggleCardSide()" class="mt-2 text-purple-600 hover:text-purple-700 underline text-sm">
+                            View Back Side
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gallery View -->
+    <div id="gallery-view" class="view hidden">
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <h1 class="font-playfair text-4xl mb-8 text-center">Design Gallery</h1>
+            <div class="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Gallery Items -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
+                    <img src="https://picsum.photos/seed/gallery1/300/400" alt="Design 1" class="w-full h-64 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-semibold mb-2">Classic Memorial</h3>
+                        <p class="text-gray-600 text-sm mb-3">Traditional design with elegant border</p>
+                        <button onclick="loadTemplate('classic')" class="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700 transition">
+                            Use This Design
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
+                    <img src="https://picsum.photos/seed/gallery2/300/400" alt="Design 2" class="w-full h-64 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-semibold mb-2">Modern Minimal</h3>
+                        <p class="text-gray-600 text-sm mb-3">Clean and contemporary style</p>
+                        <button onclick="loadTemplate('modern')" class="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700 transition">
+                            Use This Design
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
+                    <img src="https://picsum.photos/seed/gallery3/300/400" alt="Design 3" class="w-full h-64 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-semibold mb-2">Floral Tribute</h3>
+                        <p class="text-gray-600 text-sm mb-3">Beautiful floral accents</p>
+                        <button onclick="loadTemplate('floral')" class="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700 transition">
+                            Use This Design
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
+                    <img src="https://picsum.photos/seed/gallery4/300/400" alt="Design 4" class="w-full h-64 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-semibold mb-2">Religious Memorial</h3>
+                        <p class="text-gray-600 text-sm mb-3">Traditional religious symbols</p>
+                        <button onclick="loadTemplate('religious')" class="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700 transition">
+                            Use This Design
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Funeral Home Portal -->
+    <div id="funeral-home-view" class="view hidden">
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <h1 class="font-playfair text-4xl mb-8 text-center">Funeral Home Portal</h1>
+            
+            <!-- Login Form -->
+            <div id="login-form" class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-2xl font-semibold mb-6">Partner Login</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Email</label>
+                        <input type="email" id="fh-email" class="w-full p-3 border rounded-lg" placeholder="funeral@home.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Password</label>
+                        <input type="password" id="fh-password" class="w-full p-3 border rounded-lg" placeholder="••••••••">
+                    </div>
+                    <button onclick="funeralHomeLogin()" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition">
+                        Login to Portal
+                    </button>
+                    <p class="text-center text-sm text-gray-600">
+                        Don't have an account? 
+                        <button onclick="showRegisterForm()" class="text-purple-600 hover:underline">Register Here</button>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Portal Dashboard -->
+            <div id="portal-dashboard" class="hidden">
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-semibold">Welcome, <span id="fh-name">Funeral Home</span></h2>
+                        <button onclick="funeralHomeLogout()" class="text-red-600 hover:text-red-700">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </button>
+                    </div>
+                    
+                    <!-- Quick Stats -->
+                    <div class="grid md:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-purple-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-600">Total Orders</p>
+                            <p class="text-2xl font-bold text-purple-600">24</p>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-600">This Month</p>
+                            <p class="text-2xl font-bold text-green-600">8</p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-600">Pending</p>
+                            <p class="text-2xl font-bold text-blue-600">3</p>
+                        </div>
+                        <div class="bg-yellow-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-600">Total Saved</p>
+                            <p class="text-2xl font-bold text-yellow-600">$476</p>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <button onclick="startNewOrder()" class="bg-purple-600 text-white p-6 rounded-lg hover:bg-purple-700 transition">
+                            <i class="fas fa-plus-circle text-3xl mb-2"></i>
+                            <p class="font-semibold">Create New Order</p>
+                        </button>
+                        <button onclick="showOrderHistory()" class="bg-blue-600 text-white p-6 rounded-lg hover:bg-blue-700 transition">
+                            <i class="fas fa-history text-3xl mb-2"></i>
+                            <p class="font-semibold">Order History</p>
+                        </button>
+                        <button onclick="showBulkUpload()" class="bg-green-600 text-white p-6 rounded-lg hover:bg-green-700 transition">
+                            <i class="fas fa-upload text-3xl mb-2"></i>
+                            <p class="font-semibold">Bulk Upload</p>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-semibold mb-4">Recent Orders</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b">
+                                    <th class="text-left py-2">Order #</th>
+                                    <th class="text-left py-2">Deceased</th>
+                                    <th class="text-left py-2">Date</th>
+                                    <th class="text-left py-2">Status</th>
+                                    <th class="text-left py-2">Tracking</th>
+                                    <th class="text-left py-2">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table">
+                                <tr class="border-b">
+                                    <td class="py-2">#1001</td>
+                                    <td class="py-2">John Smith</td>
+                                    <td class="py-2">Mar 15, 2024</td>
+                                    <td class="py-2"><span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">Shipped</span></td>
+                                    <td class="py-2">1Z9999W99999999999</td>
+                                    <td class="py-2">
+                                        <button class="text-purple-600 hover:text-purple-700 mr-2">View</button>
+                                        <button class="text-blue-600 hover:text-blue-700">Reorder</button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b">
+                                    <td class="py-2">#1002</td>
+                                    <td class="py-2">Mary Johnson</td>
+                                    <td class="py-2">Mar 18, 2024</td>
+                                    <td class="py-2"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm">Processing</span></td>
+                                    <td class="py-2">-</td>
+                                    <td class="py-2">
+                                        <button class="text-purple-600 hover:text-purple-700 mr-2">View</button>
+                                        <button class="text-blue-600 hover:text-blue-700">Edit</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div id="cart-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto m-4">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold">Shopping Cart</h2>
+                    <button onclick="closeCart()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div id="cart-items" class="space-y-4 mb-6">
+                    <!-- Cart items will be dynamically added here -->
+                </div>
+                <div class="border-t pt-4">
+                    <div class="flex justify-between mb-4">
+                        <span class="text-lg font-semibold">Subtotal:</span>
+                        <span id="cart-subtotal" class="text-lg font-semibold">$0.00</span>
+                    </div>
+                    <div class="flex justify-between mb-4">
+                        <span>Shipping:</span>
+                        <span id="cart-shipping">$0.00</span>
+                    </div>
+                    <div class="flex justify-between mb-6 text-xl font-bold">
+                        <span>Total:</span>
+                        <span id="cart-total">$0.00</span>
+                    </div>
+                    <button onclick="proceedToCheckout()" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition">
+                        Proceed to Checkout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto m-4">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold">Checkout</h2>
+                    <button onclick="closeCheckout()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- Checkout Form -->
+                <form id="checkout-form" class="space-y-4">
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">First Name</label>
+                            <input type="text" class="w-full p-3 border rounded-lg" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Last Name</label>
+                            <input type="text" class="w-full p-3 border rounded-lg" required>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Email</label>
+                        <input type="email" class="w-full p-3 border rounded-lg" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Phone</label>
+                        <input type="tel" class="w-full p-3 border rounded-lg" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Shipping Address</label>
+                        <input type="text" class="w-full p-3 border rounded-lg mb-2" placeholder="Street Address" required>
+                        <div class="grid md:grid-cols-3 gap-2">
+                            <input type="text" class="p-3 border rounded-lg" placeholder="City" required>
+                            <input type="text" class="p-3 border rounded-lg" placeholder="State" required>
+                            <input type="text" class="p-3 border rounded-lg" placeholder="ZIP Code" required>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t pt-4">
+                        <h3 class="font-semibold mb-2">Payment Information</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-600 mb-2">Secure payment processed by Stripe</p>
+                            <div id="stripe-element" class="p-3 bg-white border rounded-lg">
+                                <!-- Stripe Elements would be integrated here -->
+                                <input type="text" placeholder="Card Number" class="w-full mb-2 p-2 border rounded">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="text" placeholder="MM/YY" class="p-2 border rounded">
+                                    <input type="text" placeholder="CVC" class="p-2 border rounded">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <input type="checkbox" id="save-info" class="mr-2">
+                        <label for="save-info" class="text-sm">Save my information for faster checkout</label>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition">
+                        <i class="fas fa-lock mr-2"></i>Complete Order
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Confirmation Modal -->
+    <div id="confirmation-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg max-w-md w-full m-4 p-6 text-center">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-3xl text-green-600"></i>
+            </div>
+            <h2 class="text-2xl font-semibold mb-2">Order Confirmed!</h2>
+            <p class="text-gray-600 mb-4">Thank you for your order. We'll send you a confirmation email shortly.</p>
+            <p class="text-sm text-gray-500 mb-6">Order Number: <span id="order-number" class="font-mono font-bold">#LPC2024001</span></p>
+            <button onclick="closeConfirmation()" class="bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700 transition">
+                Continue Shopping
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let currentView = 'home';
+        let cart = [];
+        let currentDesign = {
+            type: 'paper',
+            background: 'white',
+            borderStyle: 1,
+            borderMetal: 'gold',
+            photo: null,
+            name: '',
+            dates: '',
+            prayer: '',
+            font: 'font-playfair',
+            stickers: [],
+            qrCode: null
+        };
+        let isFuneralHome = false;
+        let currentCardSide = 'front';
+
+        // View Management
+        function showView(view) {
+            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+            document.getElementById(`${view}-view`).classList.remove('hidden');
+            currentView = view;
+        }
+
+        // Card Designer Functions
+        function setCardType(type) {
+            currentDesign.type = type;
+            document.querySelectorAll('#paper-btn, #metal-btn').forEach(btn => {
+                btn.classList.remove('border-purple-600', 'bg-purple-50');
+                btn.classList.add('border-gray-300');
+            });
+            document.getElementById(`${type}-btn`).classList.remove('border-gray-300');
+            document.getElementById(`${type}-btn`).classList.add('border-purple-600', 'bg-purple-50');
+            updatePreview();
+        }
+
+        function setBackground(bg) {
+            currentDesign.background = bg;
+            updatePreview();
+        }
+
+        function setBorderStyle(style) {
+            currentDesign.borderStyle = style;
+            updatePreview();
+        }
+
+        function setBorderMetal(metal) {
+            currentDesign.borderMetal = metal;
+            updatePreview();
+        }
+
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentDesign.photo = e.target.result;
+                    document.getElementById('preview-photo').src = e.target.result;
+                    document.getElementById('preview-photo').classList.remove('hidden');
+                    updatePreview();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function updateCardText() {
+            currentDesign.name = document.getElementById('name-input').value;
+            currentDesign.dates = document.getElementById('dates-input').value;
+            document.getElementById('preview-name').textContent = currentDesign.name || 'Your Name Here';
+            document.getElementById('preview-dates').textContent = currentDesign.dates || '1950 - 2024';
+        }
+
+        function updatePrayer() {
+            const select = document.getElementById('prayer-select');
+            const customPrayer = document.getElementById('custom-prayer');
+            
+            if (select.value === 'prayer4') {
+                customPrayer.classList.remove('hidden');
+            } else {
+                customPrayer.classList.add('hidden');
+                const prayers = {
+                    'prayer1': 'Our Father, who art in heaven, hallowed be thy name...',
+                    'prayer2': 'Eternal rest grant unto them, O Lord, and let perpetual light shine upon them...',
+                    'prayer3': 'May the souls of the faithful departed, through the mercy of God, rest in peace...'
+                };
+                currentDesign.prayer = prayers[select.value] || '';
+                document.getElementById('preview-prayer').innerHTML = `<p>${currentDesign.prayer}</p>`;
+            }
+        }
+
+        function updateFont() {
+            const font = document.getElementById('font-select').value;
+            currentDesign.font = font;
+            document.getElementById('card-content').className = `h-full flex flex-col items-center justify-center text-center relative ${font}`;
+        }
+
+        function addSticker(type) {
+            const icons = {
+                'cross': 'fa-cross',
+                'dove': 'fa-dove',
+                'heart': 'fa-heart',
+                'star': 'fa-star',
+                'flower': 'fa-spa',
+                'angel': 'fa-angel'
+            };
+            
+            const sticker = document.createElement('div');
+            sticker.className = 'sticker absolute text-2xl text-purple-600';
+            sticker.style.left = Math.random() * 200 + 'px';
+            sticker.style.top = Math.random() * 300 + 'px';
+            sticker.innerHTML = `<i class="fas ${icons[type]}"></i>`;
+            
+            document.getElementById('stickers-container').appendChild(sticker);
+            makeDraggable(sticker);
+            currentDesign.stickers.push(type);
+        }
+
+        function makeDraggable(element) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            element.onmousedown = dragMouseDown;
+
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+            }
+
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                element.style.top = (element.offsetTop - pos2) + "px";
+                element.style.left = (element.offsetLeft - pos1) + "px";
+            }
+
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+
+        function generateQRCode() {
+            const text = document.getElementById('qr-input').value;
+            if (!text) return;
+            
+            const qr = qrcode(0, 'M');
+            qr.addData(text);
+            qr.make();
+            
+            const qrContainer = document.getElementById('qr-container');
+            qrContainer.innerHTML = qr.createImgTag(4, 10);
+            currentDesign.qrCode = text;
+        }
+
+        function updatePreview() {
+            const preview = document.getElementById('card-preview');
+            
+            // Update background
+            if (currentDesign.background === 'brushed') {
+                preview.className = 'card-preview brushed-metal rounded-lg p-6 relative overflow-hidden';
+            } else if (currentDesign.background === 'marble') {
+                preview.className = 'card-preview marble-bg rounded-lg p-6 relative overflow-hidden';
+            } else {
+                preview.className = 'card-preview bg-white rounded-lg p-6 relative overflow-hidden';
+            }
+            
+            // Update border
+            preview.className += ` border-style-${currentDesign.borderStyle}`;
+            
+            // Update metal color if applicable
+            if (currentDesign.type === 'metal') {
+                preview.classList.add(`metal-${currentDesign.borderMetal}`);
+            }
+        }
+
+        function toggleCardSide() {
+            currentCardSide = currentCardSide === 'front' ? 'back' : 'front';
+            const content = document.getElementById('card-content');
+            
+            if (currentCardSide === 'back') {
+                content.innerHTML = `
+                    <div class="h-full flex flex-col justify-center p-4">
+                        <h3 class="text-lg font-semibold mb-4">Thank You</h3>
+                        <p class="text-sm mb-4">The family of ${currentDesign.name || 'the deceased'} sincerely thanks you for your presence, prayers, and support during this difficult time.</p>
+                        <div class="mt-auto">
+                            <p class="text-xs text-gray-600">Created with love at LuxuryPrayerCards.com</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Restore front content
+                updateCardText();
+                updatePrayer();
+            }
+        }
+
+        function saveDesign() {
+            localStorage.setItem('savedDesign', JSON.stringify(currentDesign));
+            alert('Design saved successfully!');
+        }
+
+        function addToCart() {
+            const item = {
+                id: Date.now(),
+                design: {...currentDesign},
+                quantity: 1,
+                price: currentDesign.type === 'metal' ? 9.99 : 4.99
+            };
+            
+            cart.push(item);
+            updateCartUI();
+            alert('Added to cart!');
+            showView('home');
+        }
+
+        function exportPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: [63.5, 88.9] // 2.5" x 3.5" standard card size
+            });
+            
+            // Add design to PDF
+            doc.text('Memorial Card', 10, 10);
+            doc.text(currentDesign.name || 'Name', 10, 20);
+            doc.text(currentDesign.dates || 'Dates', 10, 30);
+            doc.save('memorial-card.pdf');
+        }
+
+        // Cart Functions
+        function showCart() {
+            document.getElementById('cart-modal').classList.remove('hidden');
+            updateCartUI();
+        }
+
+        function closeCart() {
+            document.getElementById('cart-modal').classList.add('hidden');
+        }
+
+        function updateCartUI() {
+            const cartItems = document.getElementById('cart-items');
+            const cartCount = document.getElementById('cart-count');
+            const subtotal = document.getElementById('cart-subtotal');
+            const shipping = document.getElementById('cart-shipping');
+            const total = document.getElementById('cart-total');
+            
+            cartCount.textContent = cart.length;
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p class="text-center text-gray-500">Your cart is empty</p>';
+                subtotal.textContent = '$0.00';
+                shipping.textContent = '$0.00';
+                total.textContent = '$0.00';
+                return;
+            }
+            
+            let subtotalAmount = 0;
+            cartItems.innerHTML = cart.map(item => {
+                subtotalAmount += item.price * item.quantity;
+                return `
+                    <div class="flex items-center justify-between p-4 border rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-16 h-24 bg-gray-200 rounded mr-4"></div>
+                            <div>
+                                <p class="font-semibold">${item.design.type === 'metal' ? 'Metal' : 'Paper'} Card</p>
+                                <p class="text-sm text-gray-600">Quantity: ${item.quantity}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold">$${(item.price * item.quantity).toFixed(2)}</p>
+                            <button onclick="removeFromCart(${item.id})" class="text-red-600 hover:text-red-700 text-sm">
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            const shippingAmount = isFuneralHome ? 0 : 5.99;
+            subtotal.textContent = `$${subtotalAmount.toFixed(2)}`;
+            shipping.textContent = isFuneralHome ? 'FREE' : `$${shippingAmount.toFixed(2)}`;
+            total.textContent = `$${(subtotalAmount + shippingAmount).toFixed(2)}`;
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(item => item.id !== id);
+            updateCartUI();
+        }
+
+        function proceedToCheckout() {
+            closeCart();
+            document.getElementById('checkout-modal').classList.remove('hidden');
+        }
+
+        function closeCheckout() {
+            document.getElementById('checkout-modal').classList.add('hidden');
+        }
+
+        // Funeral Home Portal Functions
+        function funeralHomeLogin() {
+            const email = document.getElementById('fh-email').value;
+            const password = document.getElementById('fh-password').value;
+            
+            // Simulate login
+            if (email && password) {
+                isFuneralHome = true;
+                document.getElementById('login-form').classList.add('hidden');
+                document.getElementById('portal-dashboard').classList.remove('hidden');
+                document.getElementById('fh-name').textContent = email.split('@')[0];
+                updateCartUI(); // Update to show free shipping
+            }
+        }
+
+        function funeralHomeLogout() {
+            isFuneralHome = false;
+            document.getElementById('login-form').classList.remove('hidden');
+            document.getElementById('portal-dashboard').classList.add('hidden');
+            document.getElementById('fh-email').value = '';
+            document.getElementById('fh-password').value = '';
+            showView('home');
+        }
+
+        function showRegisterForm() {
+            alert('Registration form would open here. For demo, use any email/password to login.');
+        }
+
+        function startNewOrder() {
+            showView('designer');
+        }
+
+        function showOrderHistory() {
+            alert('Order history would be displayed here');
+        }
+
+        function showBulkUpload() {
+            alert('Bulk upload interface would open here');
+        }
+
+        // Checkout Form Submission
+        document.getElementById('checkout-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            closeCheckout();
+            document.getElementById('confirmation-modal').classList.remove('hidden');
+            document.getElementById('order-number').textContent = `#LPC${Date.now()}`;
+            cart = [];
+            updateCartUI();
+        });
+
+        function closeConfirmation() {
+            document.getElementById('confirmation-modal').classList.add('hidden');
+            showView('home');
+        }
+
+        // Template Loading
+        function loadTemplate(template) {
+            showView('designer');
+            // Load template settings
+            switch(template) {
+                case 'classic':
+                    setCardType('paper');
+                    setBackground('white');
+                    setBorderStyle(1);
+                    setBorderMetal('gold');
+                    break;
+                case 'modern':
+                    setCardType('paper');
+                    setBackground('white');
+                    setBorderStyle(4);
+                    setBorderMetal('silver');
+                    break;
+                case 'floral':
+                    setCardType('paper');
+                    setBackground('white');
+                    setBorderStyle(2);
+                    setBorderMetal('rose');
+                    addSticker('flower');
+                    break;
+                case 'religious':
+                    setCardType('metal');
+                    setBackground('brushed');
+                    setBorderStyle(1);
+                    setBorderMetal('gold');
+                    addSticker('cross');
+                    break;
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved design if exists
+            const savedDesign = localStorage.getItem('savedDesign');
+            if (savedDesign) {
+                currentDesign = JSON.parse(savedDesign);
+                updatePreview();
+            }
+        });
+    </script>
+</body>
+</html>
